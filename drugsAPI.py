@@ -23,16 +23,14 @@ def import_email():
 	if os.path.exists(loc):
 		with open(loc, 'r') as f:		
 			data = json.load(f)
-			email = data["email"]
-		return email
+		return data["email"]
 
 def import_api_key():
 	loc = "apidata.json"
 	if os.path.exists(loc):
 		with open(loc, 'r') as f:		
 			data = json.load(f)
-			api = data["api_key"]
-		return api
+		return data["api_key"]
 
 
 def pubchem(compound, isCompound = True, report = False):
