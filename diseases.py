@@ -167,11 +167,37 @@ def find_highest_ID(data):
 	for a in ids: newID.append(int(a))
 	return max(newID)
 
+def print_trial(data):
+	if len(data)>=2:
+		print('Searching for "{}" on clinicaltrials.gov...'.format(data[1]))
+		if len(data)==2: 
+			trials = API.trial(data[1])
+			API.trial_brief(trials)
+			print("\n")
+		elif len(data) >= 3:
+			num_trials = int(data[2].strip())
+			#print(num_trials)
+			trials = API.trial(data[1], n=num_trials)
+			trial_brief(trials)
+			print("\n")
 
-
+def print_show(data):
+	if len(data)>1:
+		showing = data[1]
+		if showing == 'All'.lower():
+			for i in range(1,length+1):
+				drug_table(i)
+		else:
+			drugID = data[1].split(',')
+			for p in range(len(drugID)): #Multiple show
+				drugID[p] = drugID[p].strip()		
+				try: 
+					i = int(drugID[p])
+					if i <= len(drugs): drug_table(i)
+					else: print("There is no drug with that id ({})".format(i))
+				except ValueError: print(drugID[p] + " is not an appropriate marker")
 
 def main():
-
 	length = find_highest_ID(drugs)
 	print("\n\t"+bcolors.HEADER+"Welcome to the drug database, please enter help for instructions\n" + bcolors.ENDC)
 	print("There are currently " + str(length) + " drugs in this database.\n")	
@@ -184,37 +210,19 @@ def main():
 		x = raw_input(entry)
 		data = x.split('@') #Data is split into parts
 		for p in range(len(data)): data[p] = data[p].strip(); data[p] = data[p].lower()
-		if x == 'quit' or x == 'exit':
-			exit()
+		if x == 'quit' or x == 'exit': exit()
 		elif data[0] == 'add':
 			misc = ''
 			length = adding(x, data, length, id_list)
 			id_list.append(length)
 			logging (x)
-			command-=1
 		elif data[0] == 'show':
-			if len(data)>1:
-				showing = data[1]
-				if showing == 'All'.lower():
-					for i in range(1,length+1):
-						drug_table(i)
-				else:
-					drugID = data[1].split(',')
-					for p in range(len(drugID)): #Multiple show
-						drugID[p] = drugID[p].strip()		
-						try: 
-							i = int(drugID[p])
-							if i <= len(drugs): drug_table(i)
-							else: print("There is no drug with that id ({})".format(i))
-						except ValueError: print(drugID[p] + " is not an appropriate marker")
+			print_show(data)
 			logging(x)		
-			command-=1
 		elif data[0] == 'help':
 			instructions()
 			logging(x)
-			command-=1
 		elif data[0] == 'edit':
-			command -=1
 			editing = ['category', 'disease', 'name', 'clinical', 'misc']
 			if len(data) >= 3:
 				id_edit = data[1]
@@ -229,21 +237,18 @@ def main():
 			logging(x)
 		
 		elif data[0] == 'find' or data[0] == 'search':
-			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}"...'.format(data[1]))
 				find_drug(x, length, id_list)
 				logging(x)
 		
 		elif data[0] == 'pubchem':
-			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}"..'.format(data[1]))
 				API.pubchem(data[1].strip())
 				logging(x)
 
 		elif data[0] == 'pubmed':
-			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}" on pubmed...'.format(data[1]))
 				query = data[1].strip()
@@ -253,30 +258,15 @@ def main():
 					API.pubmed(query, n = num_articles)
 				logging(x)
 			
-		elif data[0] == 'trial':
-			command -= 1
-			if len(data)>=2:
-				print('Searching for "{}" on clinicaltrials.gov...'.format(data[1]))
-				if len(data)==2: 
-					trials = API.trial(data[1])
-					API.trial_brief(trials)
-					print("\n")
-				elif len(data) >= 3:
-					num_trials = int(data[2].strip())
-					#print(num_trials)
-					trials = API.trial(data[1], n=num_trials)
-					trial_brief(trials)
-					print("\n")
+		elif data[0] == 'trial': print_trial(data)
 					
 		elif data[0] == 'news':
-			command -= 1
 			if len(data)>=2:
 				print('Searching for news on "{}"'.format(data[1]))
 				API.print_news(data[1])
 				print("\n")
 
 		elif data[0] == 'patent':
-			command -= 1
 			if len(data)>=2:
 				print('Searching for patents on "{}"'.format(data[1]))
 				API.print_patents(data[1])
@@ -284,7 +274,6 @@ def main():
 		
 
 		elif data[0] == 'report':
-			command -= 1
 			if len(data)>=2:
 				print('Generating Excel report on "{}"'.format(data[1]))
 				now = datetime.datetime.now()
@@ -297,7 +286,6 @@ def main():
 			
 
 		elif data[0] == 'save':
-			command -= 1
 			database['drugs'] = drugs
 			database['log'] = log
 			with open('database.json','w') as outfile:
@@ -305,23 +293,12 @@ def main():
 			logging(x)
 			print("Saving changes...")
 
-
-		elif data[0] == 'print log':
-			command -= 1		
-			p = logging(x)
-			print(log)
+		elif data[0] == 'print log': print(log)
 		
-		
-		elif data[0] == 'ids':
-			command -= 1
-			find_highest_ID(database)		
+		elif data[0] == 'ids': print(find_highest_ID(drugs)) #Prints out the highest ID
 
-		else:
-			print("This is not a valid function")
-			print("Write 'help' for an overview of valid functions")
+		else: print("This is not a valid function.\nWrite 'help' for an overview of valid functions.")
 			
-
-		command+=1
 
 
 if __name__ == '__main__':
