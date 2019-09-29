@@ -1,3 +1,4 @@
+import os
 import json
 import datetime
 import requests
@@ -196,24 +197,24 @@ def pubmed(x, n=10, report = False):
 	return article_info
 
 def extract_values(obj, key):
-    """Pull all values of specified key from nested JSON."""
-    arr = []
+	"""Pull all values of specified key from nested JSON."""
+	arr = []
 
-    def extract(obj, arr, key):
-        """Recursively search for values of key in JSON tree."""
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                if isinstance(v, (dict, list)):
-                    extract(v, arr, key)
-                elif k == key:
-                    arr.append(v)
-        elif isinstance(obj, list):
-            for item in obj:
-                extract(item, arr, key)
-        return arr
+	def extract(obj, arr, key):
+		"""Recursively search for values of key in JSON tree."""
+		if isinstance(obj, dict):
+		    for k, v in obj.items():
+			if isinstance(v, (dict, list)):
+			    extract(v, arr, key)
+			elif k == key:
+			    arr.append(v)
+		elif isinstance(obj, list):
+		    for item in obj:
+			extract(item, arr, key)
+		return arr
 
-    results = extract(obj, arr, key)
-    return results
+	results = extract(obj, arr, key)
+	return results
 
 def trial(query, n=5, report = False):
 
@@ -256,8 +257,7 @@ def trial(query, n=5, report = False):
 	num_studies = data["FullStudiesResponse"]["NStudiesReturned"] #Number of trials found
 	responseKey = data["FullStudiesResponse"].keys()
 	if "FullStudies" in responseKey: studies = data["FullStudiesResponse"]["FullStudies"] #Extracts the studies from original json
-	else: 
-		print("No trial has been found")
+	else: print("No trial has been found")
 	
 	clinicData = []
 	for clinic in range(num_studies):
@@ -267,10 +267,9 @@ def trial(query, n=5, report = False):
 			data = extractables[z]
 			stuff = "NA"
 			if data == "Condition": stuff = study["ConditionsModule"]["ConditionList"]["Condition"]
-			elif data == "StartDate": #https://xlsxwriter.readthedocs.io/example_images.html
+			elif data == "StartDate":
 				stuff = extract_values(study, data)
 				if len(stuff)>0: stuff[0] = str(parser.parse(stuff[0])) 
-				#https://stackoverflow.com/questions/466345/converting-string-into-datetime - maybe timestring
 			else: 
 				values = extract_values(study, data)
 				if len(values)>0: stuff = values
@@ -320,10 +319,9 @@ def article_dict(drugName, report = False):
 	articles = response['articles']
 	article_list = []
 	for article in articles:
-		#published_date = ""
 		title = article['title']
 		url = article['url']
-		source = article['source']['name']#str(article['source']['name'])
+		source = article['source']['name']
 		published_date = article['publishedAt']
 		article_info = {'title':title, 'url':url, 'source':source, 'published_date':published_date}
 		article_list.append(article_info)
@@ -397,7 +395,6 @@ def pdf_report (drugName, drug_report):
 	for a in range(len_report):
 		dataType = reportKeys[a]
 		print("Adding {} to excel sheet...".format(dataType))
-		#worksheet = workbook.add_worksheet(dataType)
 		data = drug_report[dataType] #Extract the relevant data
 		row = 0 #Starting row
 		col = 0

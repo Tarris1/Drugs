@@ -1,11 +1,8 @@
 import os
-#from time import sleep
 import json
-import datetime #For date-extraction in log function
+import datetime
 import re
 import drugsAPI as API
-
-#os.system('clear')
 
 #Title Bar
 class bcolors:
@@ -147,14 +144,14 @@ def adding(x, data, length, id_list):
 		clinical = data[4]
 		if len(data)>=6: misc = data[5].strip()
 		newID = length+1
-		drugs[str(newID)] = {'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)] = {'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	if len(data) == 2 and exists == False:
 		drug = data[1]
 		empty = ""; category = empty; disease = empty; clinical = empty
 		misc = empty
 		newID = length+1
-		drugs[str(newID)]={'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)]={'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	return length
 
@@ -189,13 +186,13 @@ def main():
 		for p in range(len(data)): data[p] = data[p].strip(); data[p] = data[p].lower()
 		if x == 'quit' or x == 'exit':
 			exit()
-		elif 'add' in x:
+		elif data[0] == 'add':
 			misc = ''
 			length = adding(x, data, length, id_list)
 			id_list.append(length)
 			logging (x)
 			command-=1
-		elif 'show' in x:
+		elif data[0] == 'show':
 			if len(data)>1:
 				showing = data[1]
 				if showing == 'All'.lower():
@@ -212,11 +209,11 @@ def main():
 						except ValueError: print(drugID[p] + " is not an appropriate marker")
 			logging(x)		
 			command-=1
-		elif 'help' in x:
+		elif data[0] == 'help':
 			instructions()
 			logging(x)
 			command-=1
-		elif 'edit' in x:
+		elif data[0] == 'edit':
 			command -=1
 			editing = ['category', 'disease', 'name', 'clinical', 'misc']
 			if len(data) >= 3:
@@ -231,21 +228,21 @@ def main():
 					edit_function(id_edit, dataToEdit, change) #Change: clear/more
 			logging(x)
 		
-		elif 'find' in x or 'search' in x:
+		elif data[0] == 'find' or data[0] == 'search':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}"...'.format(data[1]))
 				find_drug(x, length, id_list)
 				logging(x)
 		
-		elif 'pubchem' in x:
+		elif data[0] == 'pubchem':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}"..'.format(data[1]))
 				API.pubchem(data[1].strip())
 				logging(x)
 
-		elif 'pubmed' in x:
+		elif data[0] == 'pubmed':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}" on pubmed...'.format(data[1]))
@@ -256,7 +253,7 @@ def main():
 					API.pubmed(query, n = num_articles)
 				logging(x)
 			
-		elif 'trial' in x:
+		elif data[0] == 'trial':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for "{}" on clinicaltrials.gov...'.format(data[1]))
@@ -271,14 +268,14 @@ def main():
 					trial_brief(trials)
 					print("\n")
 					
-		elif 'news' in x:
+		elif data[0] == 'news':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for news on "{}"'.format(data[1]))
 				API.print_news(data[1])
 				print("\n")
 
-		elif 'patent' in x:
+		elif data[0] == 'patent':
 			command -= 1
 			if len(data)>=2:
 				print('Searching for patents on "{}"'.format(data[1]))
@@ -286,7 +283,7 @@ def main():
 				print("\n")
 		
 
-		elif 'report' in x:
+		elif data[0] == 'report':
 			command -= 1
 			if len(data)>=2:
 				print('Generating Excel report on "{}"'.format(data[1]))
@@ -299,7 +296,7 @@ def main():
 				print("\nReport took {} seconds".format(seconds))
 			
 
-		elif 'save' in x:
+		elif data[0] == 'save':
 			command -= 1
 			database['drugs'] = drugs
 			database['log'] = log
@@ -309,13 +306,13 @@ def main():
 			print("Saving changes...")
 
 
-		elif 'print log' in x:
+		elif data[0] == 'print log':
 			command -= 1		
 			p = logging(x)
 			print(log)
 		
 		
-		elif 'ids' in x:
+		elif data[0] == 'ids':
 			command -= 1
 			find_highest_ID(database)		
 
