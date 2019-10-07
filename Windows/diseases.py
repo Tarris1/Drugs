@@ -1,8 +1,11 @@
 import os
+#from time import sleep
 import json
-import datetime
+import datetime #For date-extraction in log function
 import re
-import drugsAPI as API
+import drugsAPI3 as API
+
+#os.system('clear')
 
 #Title Bar
 class bcolors:
@@ -43,7 +46,8 @@ def instructions():
 	print("\t patent @<query> - Searches for relevant USPTO patents")
 	print("\t report @<query> - Makes a JSON file with a collection of articles, chemistry, news and trials of a drug")
 	print("\t print log - prints the log.")
-	print("\t quit/exit - Program stops\n")
+	print("\t quit/exit - Program stops")
+	print("\t Empty command clears the console\n")
 
 
 def drug_table(id):
@@ -109,7 +113,7 @@ def edit_function(id_edit,  dataToEdit, change):
 		former_ID = id_edit[every]
 		former_drug = drugs[id_edit[every]]['name']
 		print("\nID " + former_ID + ": " + former_drug + ", " + dataToEdit + ": " + former_data)
-	new = raw_input("\nEnter new {}: ".format(dataToEdit)) 
+	new = input("\nEnter new {}: ".format(dataToEdit)) 
 	if len(new) >=1:
 	#If a 3rd datapoint is added to edit, clear if rewrite - else add on top - 
 		for every in range(len(id_edit)):
@@ -146,29 +150,27 @@ def adding(x, data, length, id_list):
 		clinical = data[4]
 		if len(data)>=6: misc = data[5].strip()
 		newID = length+1
-		drugs[str(newID)] = {'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)] = {'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	if len(data) == 2 and exists == False:
 		drug = data[1]
 		empty = ""; category = empty; disease = empty; clinical = empty
 		misc = empty
 		newID = length+1
-		drugs[str(newID)]={'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)]={'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	return length
 
 def convert_data():
 	'''If I want to convert the JSON to a different structure, make the function here'''
 	print("No data conversion function exists")
-
 		
-			
 def find_highest_ID(data):
 	ids = data.keys()
 	newID = []
 	for a in ids: newID.append(int(a))
 	return max(newID)
-
+    
 def print_trial(data):
 	if len(data)>=2:
 		print('Searching for "{}" on clinicaltrials.gov...'.format(data[1]))
@@ -180,7 +182,7 @@ def print_trial(data):
 			num_trials = int(data[2].strip())
 			#print(num_trials)
 			trials = API.trial(data[1], n=num_trials)
-			trial_brief(trials)
+			API.trial_brief(trials)
 			print("\n")
 
 def print_show(data):
@@ -207,12 +209,12 @@ def main():
 	x = 'command'
 	command = 0
 	entry = "< "
-	id_list = drugs.keys()
+	id_list = list(drugs.keys())
 	while command <= 2:
-		x = raw_input(entry)
+		x = input(entry)
 		data = x.split('@') #Data is split into parts
 		for p in range(len(data)): data[p] = data[p].strip(); data[p] = data[p].lower()
-		if x == 'quit' or x == 'exit': exit()
+		if data[0] == 'quit' or x == 'exit': exit()
 		elif data[0] == 'add':
 			misc = ''
 			length = adding(x, data, length, id_list)
@@ -220,7 +222,7 @@ def main():
 			logging (x)
 		elif data[0] == 'show':
 			print_show(data)
-			logging(x)		
+			logging(x)
 		elif data[0] == 'help':
 			instructions()
 			logging(x)
@@ -237,13 +239,11 @@ def main():
 						id_edit[p] = str(re.search(r'\d+', id_edit[p]).group())	#Remove all non-integers from the data		
 					edit_function(id_edit, dataToEdit, change) #Change: clear/more
 			logging(x)
-		
 		elif data[0] == 'find' or data[0] == 'search':
 			if len(data)>=2:
 				print('Searching for "{}"...'.format(data[1]))
 				find_drug(x, id_list)
 				logging(x)
-		
 		elif data[0] == 'pubchem':
 			if len(data)>=2:
 				print('Searching for "{}"..'.format(data[1]))
@@ -286,7 +286,6 @@ def main():
 				seconds = report_time.total_seconds()
 				print("\nReport took {} seconds".format(seconds))
 			
-
 		elif data[0] == 'save':
 			database['drugs'] = drugs
 			database['log'] = log
@@ -300,16 +299,15 @@ def main():
 		elif data[0] == 'ids': print(find_highest_ID(drugs)) #Prints out the highest ID
 
 		else: find_drug(x, id_list)
-
-		#else: print("This is not a valid function.\nWrite 'help' for an overview of valid functions.")
-			
+		#print("This is not a valid function.\nWrite 'help' for an overview of valid functions.")
+                
 
 
 if __name__ == '__main__':
 
-	loc = "database.json"
-	database = import_data(loc)
-	drugs = database['drugs']
+	loc = "database.json" #Location in the current directory of the database
+	database = import_data(loc) #Loads the data
+	drugs = database['drugs'] #Separates the log and drug database
 	log = database['log']
 	main()
 
