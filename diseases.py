@@ -41,9 +41,10 @@ def instructions():
 	print("\t trial @<query> @<#trials> - Searches clinicaltrials.gov for relevant trials")
 	print("\t news @<query> - Searches for relevant news")
 	print("\t patent @<query> - Searches for relevant USPTO patents")
-	print("\t report @<query> - Makes a JSON file with a collection of articles, chemistry, news and trials of a drug")
+	print("\t report @<query> - Makes an xlsx file with a collection of articles, chemistry, news and trials of a drug")
 	print("\t print log - prints the log.")
-	print("\t quit/exit - Program stops\n")
+	print("\t quit/exit - Program stops")
+	print("\t anything else - searches for this query\n")
 
 
 def drug_table(id):
