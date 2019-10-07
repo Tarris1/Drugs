@@ -8,16 +8,6 @@ try: from Bio import Entrez
 except: print("Entrez cannot be imported")
 import xlsxwriter
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
 
 def import_email():
 	loc = "apidata.json"
@@ -366,9 +356,11 @@ def print_patents(drugName, n = 10):
 	for i in range(n):
 		patent = patents[i]
 		patentKeys = patent.keys()
-		print("\n"+bcolors.HEADER+"Patent " + str(i+1)+ ": "+bcolors.ENDC)
+		#print("\n"+bcolors.HEADER+"Patent " + str(i+1)+ ": "+bcolors.ENDC)
+		print("\nPatent " + str(i+1) + ": ")
 		for key in patentKeys:
-			print(bcolors.UNDERLINE+key+": "+bcolors.ENDC)# + patent[key])
+			#print(bcolors.UNDERLINE+key+": "+bcolors.ENDC)# + patent[key])
+			print(key+": ")
 			if type(patent[key]) is list:
 				for x in patent[key]:
 					print(x)

@@ -5,18 +5,6 @@ import datetime #For date-extraction in log function
 import re
 import drugsAPI3 as API
 
-#os.system('clear')
-
-#Title Bar
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 def import_data(loc):
 	loc = "database.json"
@@ -34,7 +22,7 @@ def import_data(loc):
 def instructions():
 	'''If command includes the word "help" - these instructions are printed'''
 
-	print(bcolors.UNDERLINE+"\tYou will find all commands below:"+bcolors.ENDC+"\n")
+	print("\tYou will find all commands below:\n")
 	print("\t add @<drug name> @<category> @<diseases> @<clinical>")
 	print("\t find/search @<anything> - Returns a table of all matching results")
 	print("\t show @<All/id> - Prints a table with all or a specific drug")
@@ -203,7 +191,7 @@ def print_show(data):
 
 def main():
 	length = find_highest_ID(drugs)
-	print("\n\t"+bcolors.HEADER+"Welcome to the drug database, please enter help for instructions\n" + bcolors.ENDC)
+	print("\n\tWelcome to the drug database, please enter help for instructions\n")
 	print("There are currently " + str(length) + " drugs in this database.\n")	
 
 	x = 'command'
