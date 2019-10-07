@@ -59,36 +59,30 @@ def find_drug(x, id_list):
 
 	data = x.split('@')
 	prompt = data[0].strip() #Command inserted
-#For command: find/search or no function at all. If drug exists -> print table. Else -> print error
-	if len(data)>1 and (prompt == 'find' or prompt == 'search') or len(data) == 1:
-		if len(data)>1: ind = data[1].strip(); ind = ind.lower()
-		else: ind = prompt.lower()
-		anything = 0
-		if len(ind)>0:
-			for a in id_list:
+if len(data)>1: ind = data[1].strip(); ind = ind.lower()
+	else: ind = prompt.lower()
+	anything = 0
+	if len(ind)>0:
+		for a in id_list:
+			if prompt == 'add': #See if drug exists in database
+				name = drugs[str(a)]['name'].lower()
+				if ind in name and "+" not in name:
+					drug_table(a)
+					anything += 1
+					return True
+					break
+			else: #Search using 'find', 'show' or '<anything>'
 				contents = drugs[str(a)]
-				content = str(a) + contents['name'] + contents['category'] + contents['clinical']+ contents['disease']+ contents['misc']; content = content.lower()
+				content = str(a) + contents['name'] + contents['category'] + contents['clinical']+ contents['disease']+ contents['misc']
+				content = content.lower()
 				if ind in content:
 					anything += 1
 					drug_table(a)
-			if anything == 0:
-				print("\nNo drug has been found.")
-		else: os.system('cls' if os.name=='nt' else 'clear') #os.system('clear') #does not work on windows
-
-
-#For command: Add @<drug name> -> if the drug exists, stop the command and prompt its contents
-	elif len(data)>1 and prompt == 'add':
-		ind = data[1].strip(); ind = ind.lower()
-		anything = 0
-		for a in id_list:
-			name = drugs[str(a)]['name'].lower()
-			if ind in name and "+" not in name:
-				drug_table(a)
-				anything += 1
-				return True
-				break
+			
 		if anything == 0:
-			return False
+			if prompt == 'add': return False
+			else: print("\nNo drug has been found.")
+	else: os.system('cls' if os.name=='nt' else 'clear') #os.system('clear') #does not work on windows
 
 
 def edit_function(id_edit,  dataToEdit, change):
