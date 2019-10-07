@@ -64,16 +64,17 @@ if len(data)>1: ind = data[1].strip(); ind = ind.lower()
 	anything = 0
 	if len(ind)>0:
 		for a in id_list:
+			a = str(a)
 			if prompt == 'add': #See if drug exists in database
-				name = drugs[str(a)]['name'].lower()
+				name = drugs[a]['name'].lower()
 				if ind in name and "+" not in name:
 					drug_table(a)
 					anything += 1
 					return True
 					break
 			else: #Search using 'find', 'show' or '<anything>'
-				contents = drugs[str(a)]
-				content = str(a) + contents['name'] + contents['category'] + contents['clinical']+ contents['disease']+ contents['misc']
+				contents = drugs[a]
+				content = a + contents['name'] + contents['category'] + contents['clinical']+ contents['disease']+ contents['misc']
 				content = content.lower()
 				if ind in content:
 					anything += 1
