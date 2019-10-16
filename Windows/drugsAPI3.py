@@ -1,9 +1,11 @@
+import os
 import json
 import datetime
 import requests
 import pubchempy as pcp
 import urllib
-from dateutil import parser
+try: from dateutil import parser
+except: print("Dateutil cannot be imported")
 try: from Bio import Entrez
 except: print("Entrez cannot be imported")
 import xlsxwriter
@@ -383,7 +385,7 @@ def report(drugName, articles=10, trials = 10):
 def pdf_report (drugName, drug_report):
 	#drug_report contains 'articles', 'chemistry', 'trials', 'news' and 'patents'
 	workbook = xlsxwriter.Workbook(drugName+".xlsx")
-	reportKeys = drug_report.keys()
+	reportKeys = list(drug_report.keys())
 	len_report = len(reportKeys)
 	for a in range(len_report):
 		dataType = reportKeys[a]
@@ -411,11 +413,11 @@ def pdf_report (drugName, drug_report):
 				num_key = len(data[i].keys()) #extract the number of keys in the data
 				if num_key > max_key: #Check if its larger than previous
 					max_key = num_key
-					mainCol = data[i].keys()
+					mainCol = list(data[i].keys())
 					data_n = i
 			for entry in data: #Go through each data point in the data extracted
 				col = 0 #Start with column 0 for each entry
-				entryKeys = entry.keys() #Extract the keys
+				entryKeys = list(entry.keys()) #Extract the keys
 				for key in entryKeys: #Go through each key
 					if row == data_n: worksheet.write(0, col, key) #only add the headers of the longest entry
 					if key in mainCol: colKey = mainCol.index(key) #Find the right index

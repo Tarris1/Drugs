@@ -27,6 +27,7 @@ def instructions():
 	print("\t find/search @<anything> - Returns a table of all matching results")
 	print("\t show @<All/id> - Prints a table with all or a specific drug")
 	print("\t edit @<drug ID> @<name/category/disease/clinical> @<clear/more>")
+	print("\t remove/delete @<drug ID> - removes the drug from the database")
 	print("\t pubchem @<drug name> - Searches the pubchem database, returns synonyms if a specific compound does not exist")
 	print("\t pubmed @<query> @<#articles> - Searches pubmed for relevant articles, returns a list of these articles with year published, journal and DOI link")
 	print("\t trial @<query> @<#trials> - Searches clinicaltrials.gov for relevant trials")
@@ -34,6 +35,7 @@ def instructions():
 	print("\t patent @<query> - Searches for relevant USPTO patents")
 	print("\t report @<query> - Makes a JSON file with a collection of articles, chemistry, news and trials of a drug")
 	print("\t print log - prints the log.")
+	print("\t duplicates - finds the ids of any duplicate entry.")
 	print("\t quit/exit - Program stops")
 	print("\t Empty command clears the console\n")
 
@@ -54,13 +56,12 @@ def drug_table(id):
 	if len(to_edit)>4:
 		print('*** Misc.: {}'.format(to_edit['misc']))
 
-def find_drug(x, id_list):
+def find_drug(data, id_list):
 	'''Looks for the drug in the database. If prompt is find/search, it prints any drug that matches the search entry. If prompt is add, it checks if the particular drug exists and prints its contents if it exists'''
 
-	data = x.split('@')
-	prompt = data[0].strip() #Command inserted
-if len(data)>1: ind = data[1].strip(); ind = ind.lower()
-	else: ind = prompt.lower()
+	prompt = data[0] #Command inserted
+	if len(data)>1: ind = data[1]
+	else: ind = prompt
 	anything = 0
 	if len(ind)>0:
 		for a in id_list:
@@ -68,6 +69,12 @@ if len(data)>1: ind = data[1].strip(); ind = ind.lower()
 			if prompt == 'add': #See if drug exists in database
 				name = drugs[a]['name'].lower()
 				if ind in name and "+" not in name:
+					drug_table(a)
+					anything += 1
+					return True
+					break
+			elif prompt == 'remove':
+				if ind == a:
 					drug_table(a)
 					anything += 1
 					return True
@@ -81,8 +88,9 @@ if len(data)>1: ind = data[1].strip(); ind = ind.lower()
 					drug_table(a)
 			
 		if anything == 0:
-			if prompt == 'add': return False
+			if prompt == 'add' or prompt == 'remove': return False
 			else: print("\nNo drug has been found.")
+		else: print("\n{} Matching drugs have been found.\n".format(str(anything)))
 	else: os.system('cls' if os.name=='nt' else 'clear') #os.system('clear') #does not work on windows
 
 
@@ -123,7 +131,7 @@ def adding(x, data, length, id_list):
 	'''Adds new drug if the drug cannot be find using the find_drug function.
 	@params. x = command, data = splitted x, length+1 = index of new drug'''
 
-	exists = find_drug(x, id_list) #Checks if drug already exists
+	exists = find_drug(data, id_list) #Checks if drug already exists
 	if exists == False: print("Adding new drug, {}: {}...\n".format((length+1),data[1]))
 	elif exists == True: print('\nERROR: Drug Already Exists!\n')
 	if len(data) > 4 and exists == False:
@@ -133,14 +141,14 @@ def adding(x, data, length, id_list):
 		clinical = data[4]
 		if len(data)>=6: misc = data[5].strip()
 		newID = length+1
-		drugs[str(newID)] = {'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)] = {'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	if len(data) == 2 and exists == False:
 		drug = data[1]
 		empty = ""; category = empty; disease = empty; clinical = empty
 		misc = empty
 		newID = length+1
-		drugs[str(newID)]={'name' : drug, 'category': category, 					'disease' : disease, 'clinical': clinical, 'misc' : misc}
+		drugs[str(newID)]={'name' : drug, 'category': category, 'disease' : disease, 'clinical': clinical, 'misc' : misc}
 		length = newID
 	return length
 
@@ -184,6 +192,32 @@ def print_show(data):
 					else: print("There is no drug with that id ({})".format(i))
 				except ValueError: print(drugID[p] + " is not an appropriate marker")
 
+
+def remove_drug(data, id_list):
+	exists = find_drug(data, id_list)
+	if exists == True:
+		to_delete = input("Are you sure you want to remove this drug from the database? ")
+		if to_delete in ["yes", "y"]:
+			drugs.pop(data[1])
+			print("The drug #{} has been removed".format(data[1])) 
+	else: print("There is no drug with that ID.")
+
+def find_duplicates(drugs):
+	drug_ids = list(drugs.keys())
+	for drug in drug_ids:
+		name = drugs[drug]["name"]
+		subNames = name.split(",")
+		for drug_two in drug_ids:
+			if drug_two is not drug: #Checks if its the same id
+				name_two = drugs[drug_two]["name"]
+				for z in subNames:
+					if z in name_two: 
+						subNameTwo = name_two.split(",")
+						for a in subNameTwo:
+							if subNames[0] == a:
+								print("{}:{}".format(drug, drug_two))
+
+
 def main():
 	length = find_highest_ID(drugs)
 	print("\n\tWelcome to the drug database, please enter help for instructions\n")
@@ -200,7 +234,7 @@ def main():
 		if data[0] == 'quit' or x == 'exit': exit()
 		elif data[0] == 'add':
 			misc = ''
-			length = adding(x, data, length, id_list)
+			length = adding(data, length, id_list)
 			id_list.append(length)
 			logging (x)
 		elif data[0] == 'show':
@@ -225,7 +259,7 @@ def main():
 		elif data[0] == 'find' or data[0] == 'search':
 			if len(data)>=2:
 				print('Searching for "{}"...'.format(data[1]))
-				find_drug(x, id_list)
+				find_drug(data, id_list)
 				logging(x)
 		elif data[0] == 'pubchem':
 			if len(data)>=2:
@@ -276,12 +310,16 @@ def main():
 				json.dump(database, outfile)
 			logging(x)
 			print("Saving changes...")
+		
+		elif data[0] == 'remove' or data[0] == "delete": remove_drug(data, id_list)
+
+		elif data[0] == 'duplicates': find_duplicates(drugs)
 
 		elif data[0] == 'print log': print(log)
 		
 		elif data[0] == 'ids': print(find_highest_ID(drugs)) #Prints out the highest ID
 
-		else: find_drug(x, id_list)
+		else: find_drug(data, id_list)
 		#print("This is not a valid function.\nWrite 'help' for an overview of valid functions.")
                 
 
